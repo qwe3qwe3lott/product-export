@@ -16,13 +16,13 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
-import NavButton from '@/classes/NavButton'
-import { useRouter } from 'vue-router'
+import { NavButton } from '@/classes/NavButton'
+import { Router, useRouter } from 'vue-router'
 export default defineComponent({
   name: 'HeaderComponent',
   setup () {
-    const router = useRouter()
-    const isActiveRoute = (routeName) => router.currentRoute.value.matched.some(route => route.name === routeName)
+    const router: Router = useRouter()
+    const isActiveRoute = (routeName: string) => router.currentRoute.value.matched.some(route => route.name === routeName)
 
     const navs: NavButton[] = reactive([
       { label: 'About', routeName: 'AboutPage' },

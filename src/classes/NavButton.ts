@@ -1,7 +1,4 @@
-export default class NavButton {
+export type NavButton = {
   label: string
   routeName: string
-  constructor () {
-    this.label = this.routeName = ''
-  }
 }
