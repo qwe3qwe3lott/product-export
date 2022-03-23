@@ -1,4 +1,4 @@
-import { Product } from '@/classes/Product'
+import { Product } from '@/types/Product'
 
 export type Technology = {
   title: string,

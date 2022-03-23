@@ -1,0 +1,57 @@
+import { ActionContext, ActionTree } from 'vuex'
+import { State } from '@/store/state'
+import { Mutations, MutationTypes } from '@/store/mutations'
+import { delay } from '@/util/delay'
+
+type AugmentedActionContext = {
+  commit<K extends keyof Mutations>(key: K, payload: Parameters<Mutations[K]>[1]): ReturnType<Mutations[K]>
+} & Omit<ActionContext<State, State>, 'commit'>
+
+export enum ActionTypes {
+  LOAD_YEARS_LIST = 'LOAD_YEARS_LIST',
+  LOAD_COUNTRIES_LIST = 'LOAD_COUNTRIES_LIST',
+  LOAD_TECHNOLOGIES_LIST = 'LOAD_TECHNOLOGIES_LIST'
+}
+
+export interface Actions {
+  [ActionTypes.LOAD_YEARS_LIST]({ commit }: AugmentedActionContext): void
+  [ActionTypes.LOAD_COUNTRIES_LIST]({ commit }: AugmentedActionContext): void
+  [ActionTypes.LOAD_TECHNOLOGIES_LIST]({ commit }: AugmentedActionContext): void
+}
+
+export const actions: ActionTree<State, State> & Actions = {
+  async [ActionTypes.LOAD_YEARS_LIST] ({ commit }: AugmentedActionContext) {
+    await delay(300)
+    commit(MutationTypes.SET_YEARS_LIST, ['2021', '2022'])
+  },
+  async [ActionTypes.LOAD_COUNTRIES_LIST] ({ commit }: AugmentedActionContext) {
+    await delay(300)
+    commit(MutationTypes.SET_COUNTRIES_LIST, ['Albania', 'USA'])
+  },
+  async [ActionTypes.LOAD_TECHNOLOGIES_LIST] ({ commit }: AugmentedActionContext) {
+    await delay(500)
+    commit(MutationTypes.SET_TECHNOLOGIES_LIST, [
+      {
+        title: 'Chemical reaction',
+        indexValue: 23.233,
+        products: [
+          { title: 'Сера' },
+          { title: 'Водород' }
+        ]
+      },
+      {
+        title: 'Chemical reaction',
+        indexValue: 23.233,
+        products: [
+          { title: 'Сера' },
+          { title: 'Водород' }
+        ]
+      },
+      {
+        title: 'Cake baking',
+        indexValue: 13.233,
+        products: []
+      }
+    ])
+  }
+}

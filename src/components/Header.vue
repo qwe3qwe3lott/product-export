@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
-import { NavButton } from '@/classes/NavButton'
+import { NavButton } from '@/types/NavButton'
 import { Router, useRouter } from 'vue-router'
 export default defineComponent({
   name: 'HeaderComponent',
