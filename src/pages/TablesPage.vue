@@ -13,15 +13,15 @@
   <div class="alert-section" v-else>
     <button class="return-button" @click="getBackToTechnologies">
       <img class="return-button-image" alt="backArrow" src="@/assets/svg/arrow.svg">
-      <p class="return-button-text">Return to technologies</p>
+      <span class="return-button-text">Return to technologies</span>
     </button>
   </div>
-  <TableComponent class="table-section">
+  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" @rowsPerPageChange="changeRowsPerTechnologiesPage" @nextPage="openNextPage" @previousPage="openPreviousPage">
     <template v-slot:header>
       <TableHeaderComponent :columns-setup="technologiesColumnsSetup" @sort="sortTechnologies"/>
     </template>
     <template v-slot:content>
-      <TableContentComponent/>
+      <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologies" @rowClick="clickOnTechnologyRow"/>
     </template>
   </TableComponent>
 </template>
@@ -38,6 +38,8 @@ import { MutationTypes } from '@/store/mutations'
 import { ActionTypes } from '@/store/actions'
 import { ColumnSetup, ColumnWidthMetrics } from '@/types/ColumnSetup'
 import { SortEvent } from '@/types/events/SortEvent'
+import { RowClickEvent } from '@/types/events/RowClickEvent'
+import { RowsPerPage } from '@/store/state'
 
 export default defineComponent({
   name: 'TablesPage',
@@ -64,6 +66,7 @@ export default defineComponent({
     const countries: ComputedRef<string[]> = computed(() => store.state.countries)
     const countryWasChanged = (event: Event) => {
       chosenCountry.value = (event.target as HTMLSelectElement).value
+      loadTechnologies()
     }
 
     const chosenYear: WritableComputedRef<string | null> = computed({
@@ -73,6 +76,12 @@ export default defineComponent({
     const years: ComputedRef<string[]> = computed(() => store.state.years)
     const yearWasChanged = (event: Event) => {
       chosenYear.value = (event.target as HTMLSelectElement).value
+      loadTechnologies()
+    }
+
+    const loadTechnologies = async () => {
+      if (chosenCountry.value === null || chosenYear.value === null) return
+      await store.dispatch(ActionTypes.LOAD_TECHNOLOGIES_LIST, undefined)
     }
 
     // ALERT SECTION
@@ -81,11 +90,36 @@ export default defineComponent({
     const getCountOfTechnologiesWithProducts: ComputedRef<number> = computed(() => store.getters.getCountOfTechnologiesWithProducts)
 
     // TECHNOLOGIES TABLE SETUP
+    const technologies: ComputedRef<Technology[]> = computed(() => store.getters.getCurrentTechnologies)
     const technologiesColumnsSetup: ColumnSetup[] = [
-      { title: 'Technology title' },
-      { title: 'Index value', width: { value: 12, metric: ColumnWidthMetrics.em }, sortAtoZ: false },
-      { title: 'Products', width: { value: 7.5, metric: ColumnWidthMetrics.em } }
+      { title: 'Technology title', property: 'title' },
+      { title: 'Index value', property: 'indexValue', width: { value: 12, metric: ColumnWidthMetrics.em }, sortAtoZ: false },
+      { title: 'Products', property: 'products', width: { value: 7.5, metric: ColumnWidthMetrics.em } }
     ]
+    const clickOnTechnologyRow = (event: RowClickEvent) => {
+      const technology: Technology = event.element
+      if (technology.products.length > 0) {
+        chosenTechnology.value = technology
+        isTechnologyChosen.value = true
+      } else console.log('Открыть модальное окно')
+    }
+    const rowsPerTechnologiesPage: WritableComputedRef<RowsPerPage> = computed({
+      get (): RowsPerPage { return store.state.rowsPerTechnologiesPage },
+      set (newValue: RowsPerPage): void { store.commit(MutationTypes.SET_ROWS_PER_TECHNOLOGIES_PAGE, newValue) }
+    })
+    const changeRowsPerTechnologiesPage = (event: Event) => {
+      rowsPerTechnologiesPage.value = +(event.target as HTMLSelectElement).value
+    }
+    const currentTechnologiesPage: WritableComputedRef<number> = computed({
+      get (): number { return store.state.currentTechnologiesPage },
+      set (newValue: number): void { store.commit(MutationTypes.SET_CURRENT_TECHNOLOGIES_PAGE, newValue) }
+    })
+    const openPreviousPage = () => {
+      currentTechnologiesPage.value--
+    }
+    const openNextPage = () => {
+      currentTechnologiesPage.value++
+    }
     const sortTechnologies = (event: SortEvent) => {
       console.log(event)
     }
@@ -104,6 +138,12 @@ export default defineComponent({
       yearAndCountryHaveChosen,
       technologiesColumnsSetup,
       sortTechnologies,
+      technologies,
+      clickOnTechnologyRow,
+      rowsPerTechnologiesPage,
+      changeRowsPerTechnologiesPage,
+      openPreviousPage,
+      openNextPage,
       test: () => { console.log('test') }
     }
   }
@@ -154,6 +194,6 @@ export default defineComponent({
   font-size: 0.9em;
 }
 .table-section {
-  padding: 1em 2.5em 0 2.5em;
+  padding: 1em 2.5em 2em 2.5em;
 }
 </style>

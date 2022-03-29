@@ -5,6 +5,7 @@ export enum ColumnWidthMetrics {
 
 export type ColumnSetup = {
   title: string
+  property: string
   width?: {
     value: number,
     metric: ColumnWidthMetrics

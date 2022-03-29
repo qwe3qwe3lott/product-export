@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <button v-for="(setup, index) in columnsSetup" :key="index" :style="getColumnWidth(setup)" class="title" @click="sort(setup)">
-      <p class="title-text">{{setup.title}}</p>
+      <span class="title-text">{{setup.title}}</span>
       <img alt="sort mark" src="@/assets/svg/not-sorted.svg" v-if="setup.sortAtoZ === undefined">
       <img alt="sort arrow" src="@/assets/svg/sorted.svg" v-else :style="getSortInverse(setup.sortAtoZ)">
     </button>

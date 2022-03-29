@@ -32,22 +32,24 @@ export const actions: ActionTree<State, State> & Actions = {
     await delay(500)
     commit(MutationTypes.SET_TECHNOLOGIES_LIST, [
       {
+        id: 1,
         title: 'Chemical reaction',
         indexValue: 23.233,
         products: [
-          { title: 'Сера' },
-          { title: 'Водород' }
+          { id: 1, title: 'Сера' },
+          { id: 2, title: 'Водород' }
         ]
       },
       {
-        title: 'Chemical reaction',
+        id: 2,
+        title: 'Chemical something',
         indexValue: 23.233,
         products: [
-          { title: 'Сера' },
-          { title: 'Водород' }
+          { id: 1, title: 'Сера' }
         ]
       },
       {
+        id: 3,
         title: 'Cake baking',
         indexValue: 13.233,
         products: []

@@ -11,7 +11,7 @@ html {
     max-height: 100vh;
     height: 100%;
     width: 100%;
-    font-size: 20px;
+    font-size: 25px;
 }
 body {
     height: 100%;
@@ -36,4 +36,7 @@ button:hover, input[type=button]:hover, input[type=submit]:hover, select:hover {
 h1, h2, h3 {
     font-size: 1em;
     font-weight: normal;
+}
+li {
+    list-style-type: none;
 }
