@@ -1,6 +1,7 @@
 import { Technology } from '@/types/Technology'
 import { MutationTree } from 'vuex'
 import { RowsPerPage, State } from '@/store/state'
+import { Product } from '@/types/Product'
 
 export enum MutationTypes {
   SET_TECHNOLOGY_CHOSEN_FLAG = 'SET_TECHNOLOGY_CHOSEN_FLAG',
@@ -11,7 +12,10 @@ export enum MutationTypes {
   SET_COUNTRIES_LIST = 'SET_COUNTRIES_LIST',
   SET_TECHNOLOGIES_LIST = 'SET_TECHNOLOGIES_LIST',
   SET_ROWS_PER_TECHNOLOGIES_PAGE = 'SET_ROWS_PER_TECHNOLOGIES_PAGE',
-  SET_CURRENT_TECHNOLOGIES_PAGE = 'SET_CURRENT_TECHNOLOGIES_PAGE'
+  SET_CURRENT_TECHNOLOGIES_PAGE = 'SET_CURRENT_TECHNOLOGIES_PAGE',
+  SET_PRODUCTS_LIST = 'SET_PRODUCTS_LIST',
+  SET_ROWS_PER_PRODUCTS_PAGE = 'SET_ROWS_PER_PRODUCTS_PAGE',
+  SET_CURRENT_PRODUCTS_PAGE = 'SET_CURRENT_PRODUCTS_PAGE'
 }
 
 export type Mutations<S = State> = {
@@ -24,6 +28,9 @@ export type Mutations<S = State> = {
   [MutationTypes.SET_TECHNOLOGIES_LIST](state: S, payload: Technology[]): void
   [MutationTypes.SET_ROWS_PER_TECHNOLOGIES_PAGE](state: S, payload: RowsPerPage): void
   [MutationTypes.SET_CURRENT_TECHNOLOGIES_PAGE](state: S, payload: number): void
+  [MutationTypes.SET_PRODUCTS_LIST](state: S, payload: Product[]): void
+  [MutationTypes.SET_ROWS_PER_PRODUCTS_PAGE](state: S, payload: RowsPerPage): void
+  [MutationTypes.SET_CURRENT_PRODUCTS_PAGE](state: S, payload: number): void
 }
 
 export const mutations: MutationTree<State> & Mutations = {
@@ -44,5 +51,17 @@ export const mutations: MutationTree<State> & Mutations = {
     const totalPages: number = Math.ceil(totalRows / state.rowsPerTechnologiesPage)
     if (payload > totalPages) return
     state.currentTechnologiesPage = payload
+  },
+  [MutationTypes.SET_PRODUCTS_LIST] (state: State, payload: Product[]) { state.products = payload },
+  [MutationTypes.SET_ROWS_PER_PRODUCTS_PAGE] (state: State, payload: RowsPerPage) {
+    state.rowsPerProductsPage = payload
+    state.currentProductsPage = 1
+  },
+  [MutationTypes.SET_CURRENT_PRODUCTS_PAGE] (state: State, payload: number) {
+    if (payload < 1) return
+    const totalRows: number = state.products.length
+    const totalPages: number = Math.ceil(totalRows / state.rowsPerProductsPage)
+    if (payload > totalPages) return
+    state.currentProductsPage = payload
   }
 }

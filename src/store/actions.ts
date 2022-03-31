@@ -2,6 +2,7 @@ import { ActionContext, ActionTree } from 'vuex'
 import { State } from '@/store/state'
 import { Mutations, MutationTypes } from '@/store/mutations'
 import { delay } from '@/util/delay'
+import { apiService } from '@/api/service'
 
 type AugmentedActionContext = {
   commit<K extends keyof Mutations>(key: K, payload: Parameters<Mutations[K]>[1]): ReturnType<Mutations[K]>
@@ -21,12 +22,10 @@ export interface Actions {
 
 export const actions: ActionTree<State, State> & Actions = {
   async [ActionTypes.LOAD_YEARS_LIST] ({ commit }: AugmentedActionContext) {
-    await delay(300)
-    commit(MutationTypes.SET_YEARS_LIST, ['2021', '2022'])
+    commit(MutationTypes.SET_YEARS_LIST, await apiService.getYearsList())
   },
   async [ActionTypes.LOAD_COUNTRIES_LIST] ({ commit }: AugmentedActionContext) {
-    await delay(300)
-    commit(MutationTypes.SET_COUNTRIES_LIST, ['Albania', 'USA'])
+    commit(MutationTypes.SET_COUNTRIES_LIST, await apiService.getCountriesList())
   },
   async [ActionTypes.LOAD_TECHNOLOGIES_LIST] ({ commit }: AugmentedActionContext) {
     await delay(500)

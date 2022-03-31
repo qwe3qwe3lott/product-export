@@ -1,6 +1,6 @@
 <template>
   <ul class="content">
-    <li v-for="(element, index) in data" :key="index" class="row" @click="clickRow(element)">
+    <li v-for="(element, index) in data" :key="index" class="row" :class="clickable ? 'clickable-row' : ''" @click="clickRow(element)">
       <span v-for="(setup, i) in columnsSetup" :key="i" :style="getColumnWidth(setup)" class="row-value" :class="markValue(element[setup.property])">
         {{getColumnValue(element[setup.property])}}
       </span>
@@ -17,14 +17,17 @@ export default defineComponent({
   name: 'TableContentComponent',
   props: {
     columnsSetup: { required: true, type: Array as PropType<ColumnSetup[]> },
-    data: { required: true, type: Array }
+    data: { required: true, type: Array },
+    clickable: { required: true, type: Boolean }
   },
   setup (props, { emit }) {
     const getColumnWidth = (setup: ColumnSetup) => setup.width ? { 'min-width': `${setup.width.value}${ColumnWidthMetrics[setup.width.metric]}` } : { width: '100%' }
-    const getColumnValue = (element: any) => Array.isArray(element) ? element.length : element
-    const markValue = (element: any) => Array.isArray(element) ? (element.length > 0 ? 'positive-mark' : 'negative-mark') : ''
+    const getColumnValue = (element: unknown) => Array.isArray(element) ? element.length : element
+    const markValue = (element: unknown) => Array.isArray(element) ? (element.length > 0 ? 'positive-mark' : 'negative-mark') : ''
 
-    const clickRow = (element: any) => emit('rowClick', { element } as RowClickEvent)
+    const clickRow = (element: unknown) => {
+      if (props.clickable) emit('rowClick', { element } as RowClickEvent)
+    }
 
     return { getColumnWidth, getColumnValue, markValue, clickRow }
   }
@@ -48,7 +51,7 @@ export default defineComponent({
   width: 100%;
   height: 2em;
 }
-.row:hover {
+.clickable-row:hover {
   cursor: pointer;
   background-color: rgba(7, 132, 17, 0.1);
 }

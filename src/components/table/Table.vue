@@ -3,7 +3,7 @@
     <slot name="header"/>
     <slot name="content"/>
     <div class="footer">
-      <p class="pages-display">{{ getPageInfo }}</p>
+      <p class="pages-display">{{ pageInfo }}</p>
       <div class="toolbar">
         <div class="rows-count">
           <p class="rows-count-label">Rows per count:</p>
@@ -27,16 +27,14 @@
 <script lang="ts">
 import { computed, ComputedRef, defineComponent } from 'vue'
 import { RowsPerPage } from '@/store/state'
-import { useStore } from '@/store'
 
 export default defineComponent({
   name: 'TableComponent',
   props: {
-    rowsPerPage: { required: true, type: Number }
+    rowsPerPage: { required: true, type: Number },
+    pageInfo: { required: true, type: String }
   },
   setup () {
-    const store = useStore()
-
     const getRowsPerPageList: ComputedRef<number[]> = computed(() => {
       let array = Object.entries(RowsPerPage)
       // First part of array contains duplicates
@@ -45,9 +43,7 @@ export default defineComponent({
       return array.map(a => a[1] as number)
     })
 
-    const getPageInfo: ComputedRef<string> = computed(() => store.getters.getCurrentTechnologiesPageInfo)
-
-    return { getRowsPerPageList, getPageInfo }
+    return { getRowsPerPageList }
   }
 })
 </script>

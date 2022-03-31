@@ -16,18 +16,26 @@
       <span class="return-button-text">Return to technologies</span>
     </button>
   </div>
-  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" @rowsPerPageChange="changeRowsPerTechnologiesPage" @nextPage="openNextPage" @previousPage="openPreviousPage">
+  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" :page-info="technologiesCurrentPageInfo" @rowsPerPageChange="changeRowsPerTechnologiesPage" @nextPage="openNextTechnologiesPage" @previousPage="openPreviousTechnologiesPage">
     <template v-slot:header>
       <TableHeaderComponent :columns-setup="technologiesColumnsSetup" @sort="sortTechnologies"/>
     </template>
     <template v-slot:content>
-      <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologies" @rowClick="clickOnTechnologyRow"/>
+      <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologiesOnPage" :clickable="true" @rowClick="clickOnTechnologyRow"/>
+    </template>
+  </TableComponent>
+  <TableComponent class="table-section" v-else :rows-per-page="rowsPerProductsPage" :page-info="productsCurrentPageInfo" @rowsPerPageChange="changeRowsPerProductsPage" @nextPage="openNextProductsPage" @previousPage="openPreviousProductsPage">
+    <template v-slot:header>
+      <TableHeaderComponent :columns-setup="productsColumnsSetup" @sort="sortProducts"/>
+    </template>
+    <template v-slot:content>
+      <TableContentComponent :columns-setup="productsColumnsSetup" :data="productsOnPage" :clickable="false"/>
     </template>
   </TableComponent>
 </template>
 
 <script lang="ts">
-import { computed, ComputedRef, defineComponent, WritableComputedRef } from 'vue'
+import { computed, defineComponent } from 'vue'
 import DropdownUI from '@/components/UI/Dropdown.vue'
 import { useStore } from '@/store'
 import { Technology } from '@/types/Technology'
@@ -39,7 +47,7 @@ import { ActionTypes } from '@/store/actions'
 import { ColumnSetup, ColumnWidthMetrics } from '@/types/ColumnSetup'
 import { SortEvent } from '@/types/events/SortEvent'
 import { RowClickEvent } from '@/types/events/RowClickEvent'
-import { RowsPerPage } from '@/store/state'
+import { useWritableComputedRef } from '@/uses/useWritableComputedRef'
 
 export default defineComponent({
   name: 'TablesPage',
@@ -50,30 +58,18 @@ export default defineComponent({
     if (store.state.countries.length === 0) store.dispatch(ActionTypes.LOAD_COUNTRIES_LIST, undefined)
     if (store.state.years.length === 0) store.dispatch(ActionTypes.LOAD_YEARS_LIST, undefined)
 
-    const isTechnologyChosen: WritableComputedRef<boolean> = computed({
-      get (): boolean { return store.state.isTechnologyChosen },
-      set (newValue: boolean): void { store.commit(MutationTypes.SET_TECHNOLOGY_CHOSEN_FLAG, newValue) }
-    })
-    const chosenTechnology: WritableComputedRef<Technology | null> = computed({
-      get (): Technology | null { return store.state.chosenTechnology },
-      set (newValue: Technology | null): void { store.commit(MutationTypes.SET_CHOSEN_TECHNOLOGY, newValue) }
-    })
+    const isTechnologyChosen = useWritableComputedRef(() => store.state.isTechnologyChosen, MutationTypes.SET_TECHNOLOGY_CHOSEN_FLAG)
+    const chosenTechnology = useWritableComputedRef(() => store.state.chosenTechnology, MutationTypes.SET_CHOSEN_TECHNOLOGY)
 
-    const chosenCountry: WritableComputedRef<string | null> = computed({
-      get (): string | null { return store.state.chosenCountry },
-      set (newValue: string | null): void { store.commit(MutationTypes.SET_CHOSEN_COUNTRY, newValue) }
-    })
-    const countries: ComputedRef<string[]> = computed(() => store.state.countries)
+    const chosenCountry = useWritableComputedRef(() => store.state.chosenCountry, MutationTypes.SET_CHOSEN_COUNTRY)
+    const countries = computed(() => store.state.countries)
     const countryWasChanged = (event: Event) => {
       chosenCountry.value = (event.target as HTMLSelectElement).value
       loadTechnologies()
     }
 
-    const chosenYear: WritableComputedRef<string | null> = computed({
-      get (): string | null { return store.state.chosenYear },
-      set (newValue: string | null): void { store.commit(MutationTypes.SET_CHOSEN_YEAR, newValue) }
-    })
-    const years: ComputedRef<string[]> = computed(() => store.state.years)
+    const chosenYear = useWritableComputedRef(() => store.state.chosenYear, MutationTypes.SET_CHOSEN_YEAR)
+    const years = computed(() => store.state.years)
     const yearWasChanged = (event: Event) => {
       chosenYear.value = (event.target as HTMLSelectElement).value
       loadTechnologies()
@@ -82,15 +78,16 @@ export default defineComponent({
     const loadTechnologies = async () => {
       if (chosenCountry.value === null || chosenYear.value === null) return
       await store.dispatch(ActionTypes.LOAD_TECHNOLOGIES_LIST, undefined)
+      currentTechnologiesPage.value = 1
     }
 
     // ALERT SECTION
     const getBackToTechnologies = () => { isTechnologyChosen.value = false }
-    const yearAndCountryHaveChosen: ComputedRef<boolean> = computed(() => chosenYear.value !== null && chosenCountry.value !== null)
-    const getCountOfTechnologiesWithProducts: ComputedRef<number> = computed(() => store.getters.getCountOfTechnologiesWithProducts)
+    const yearAndCountryHaveChosen = computed(() => chosenYear.value !== null && chosenCountry.value !== null)
+    const getCountOfTechnologiesWithProducts = computed(() => store.getters.getCountOfTechnologiesWithProducts)
 
     // TECHNOLOGIES TABLE SETUP
-    const technologies: ComputedRef<Technology[]> = computed(() => store.getters.getCurrentTechnologies)
+    const technologiesOnPage = computed(() => store.getters.getCurrentTechnologies)
     const technologiesColumnsSetup: ColumnSetup[] = [
       { title: 'Technology title', property: 'title' },
       { title: 'Index value', property: 'indexValue', width: { value: 12, metric: ColumnWidthMetrics.em }, sortAtoZ: false },
@@ -100,27 +97,36 @@ export default defineComponent({
       const technology: Technology = event.element
       if (technology.products.length > 0) {
         chosenTechnology.value = technology
+        store.commit(MutationTypes.SET_PRODUCTS_LIST, technology.products)
         isTechnologyChosen.value = true
       } else console.log('Открыть модальное окно')
     }
-    const rowsPerTechnologiesPage: WritableComputedRef<RowsPerPage> = computed({
-      get (): RowsPerPage { return store.state.rowsPerTechnologiesPage },
-      set (newValue: RowsPerPage): void { store.commit(MutationTypes.SET_ROWS_PER_TECHNOLOGIES_PAGE, newValue) }
-    })
+    const technologiesCurrentPageInfo = computed(() => store.getters.getTechnologiesCurrentPageInfo)
+    const rowsPerTechnologiesPage = useWritableComputedRef(() => store.state.rowsPerTechnologiesPage, MutationTypes.SET_ROWS_PER_TECHNOLOGIES_PAGE)
     const changeRowsPerTechnologiesPage = (event: Event) => {
       rowsPerTechnologiesPage.value = +(event.target as HTMLSelectElement).value
     }
-    const currentTechnologiesPage: WritableComputedRef<number> = computed({
-      get (): number { return store.state.currentTechnologiesPage },
-      set (newValue: number): void { store.commit(MutationTypes.SET_CURRENT_TECHNOLOGIES_PAGE, newValue) }
-    })
-    const openPreviousPage = () => {
-      currentTechnologiesPage.value--
-    }
-    const openNextPage = () => {
-      currentTechnologiesPage.value++
-    }
+    const currentTechnologiesPage = useWritableComputedRef(() => store.state.currentTechnologiesPage, MutationTypes.SET_CURRENT_TECHNOLOGIES_PAGE)
+    const openPreviousTechnologiesPage = () => { currentTechnologiesPage.value-- }
+    const openNextTechnologiesPage = () => { currentTechnologiesPage.value++ }
     const sortTechnologies = (event: SortEvent) => {
+      console.log(event)
+    }
+
+    // PRODUCTS TABLE SETUP
+    const productsOnPage = computed(() => store.getters.getCurrentProducts)
+    const productsColumnsSetup: ColumnSetup[] = [
+      { title: 'Product title', property: 'title', sortAtoZ: true }
+    ]
+    const productsCurrentPageInfo = computed(() => store.getters.getProductsCurrentPageInfo)
+    const rowsPerProductsPage = useWritableComputedRef(() => store.state.rowsPerProductsPage, MutationTypes.SET_ROWS_PER_PRODUCTS_PAGE)
+    const changeRowsPerProductsPage = (event: Event) => {
+      rowsPerProductsPage.value = +(event.target as HTMLSelectElement).value
+    }
+    const currentProductsPage = useWritableComputedRef(() => store.state.currentProductsPage, MutationTypes.SET_CURRENT_PRODUCTS_PAGE)
+    const openPreviousProductsPage = () => { currentProductsPage.value-- }
+    const openNextProductsPage = () => { currentProductsPage.value++ }
+    const sortProducts = (event: SortEvent) => {
       console.log(event)
     }
 
@@ -138,12 +144,21 @@ export default defineComponent({
       yearAndCountryHaveChosen,
       technologiesColumnsSetup,
       sortTechnologies,
-      technologies,
+      technologiesOnPage,
+      technologiesCurrentPageInfo,
       clickOnTechnologyRow,
       rowsPerTechnologiesPage,
       changeRowsPerTechnologiesPage,
-      openPreviousPage,
-      openNextPage,
+      openPreviousTechnologiesPage,
+      openNextTechnologiesPage,
+      productsOnPage,
+      productsColumnsSetup,
+      productsCurrentPageInfo,
+      rowsPerProductsPage,
+      changeRowsPerProductsPage,
+      openPreviousProductsPage,
+      openNextProductsPage,
+      sortProducts,
       test: () => { console.log('test') }
     }
   }
