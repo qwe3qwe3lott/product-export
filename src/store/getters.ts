@@ -10,10 +10,8 @@ export type Getters = {
   getCurrentTechnologies (state: State): Technology[],
   // Products which displays at the current page
   getCurrentProducts (state: State): Product[],
-  // Info which displays under technologies table left
-  getTechnologiesCurrentPageInfo (state: State): string,
-  // Info which displays under products table left
-  getProductsCurrentPageInfo (state: State): string,
+  getCountOfTechnologies (state: State): number,
+  getCountOfProducts (state: State): number
 }
 
 export const getters: GetterTree<State, State> & Getters = {
@@ -26,18 +24,6 @@ export const getters: GetterTree<State, State> & Getters = {
     const endIndex: number = state.currentProductsPage * state.rowsPerProductsPage
     return state.products.slice(endIndex - state.rowsPerProductsPage, endIndex)
   },
-  getTechnologiesCurrentPageInfo: state => getCurrentPageInfo(state.technologies.length, state.currentTechnologiesPage, state.rowsPerTechnologiesPage),
-  getProductsCurrentPageInfo: state => getCurrentPageInfo(state.products.length, state.currentProductsPage, state.rowsPerProductsPage)
-}
-
-const getCurrentPageInfo = (totalRows: number, currentPage: number, rowsPerPage: number): string => {
-  if (totalRows === 0) return ''
-  const totalPages: number = Math.ceil(totalRows / rowsPerPage)
-  const isThisLastPage: boolean = currentPage === totalPages
-  let lastPageRows: number = totalRows % rowsPerPage
-  if (lastPageRows === 0) lastPageRows = rowsPerPage
-
-  const lastRowOnCurrentPage: number = isThisLastPage ? totalRows : currentPage * rowsPerPage
-  const firstRowOnCurrentPage: number = lastRowOnCurrentPage - (isThisLastPage ? lastPageRows : rowsPerPage) + 1
-  return `${firstRowOnCurrentPage}-${lastRowOnCurrentPage} of ${totalRows}`
+  getCountOfTechnologies: state => state.technologies.length,
+  getCountOfProducts: state => state.products.length
 }

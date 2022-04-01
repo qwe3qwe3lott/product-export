@@ -1,5 +1,6 @@
 <template>
   <ul class="content">
+    <li class="start" ref="start"/>
     <li v-for="(element, index) in data" :key="index" class="row" :class="clickable ? 'clickable-row' : ''" @click="clickRow(element)">
       <span v-for="(setup, i) in columnsSetup" :key="i" :style="getColumnWidth(setup)" class="row-value" :class="markValue(element[setup.property])">
         {{getColumnValue(element[setup.property])}}
@@ -9,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, watch, ref, onMounted } from 'vue'
 import { ColumnSetup, ColumnWidthMetrics } from '@/types/ColumnSetup'
 import { RowClickEvent } from '@/types/events/RowClickEvent'
 
@@ -29,7 +30,15 @@ export default defineComponent({
       if (props.clickable) emit('rowClick', { element } as RowClickEvent)
     }
 
-    return { getColumnWidth, getColumnValue, markValue, clickRow }
+    const start = ref<HTMLUListElement | null>(null)
+    onMounted(() => {
+      watch(props, () => {
+        if (start.value === null) return
+        start.value.scrollIntoView(true)
+      })
+    })
+
+    return { getColumnWidth, getColumnValue, markValue, clickRow, start }
   }
 })
 </script>
@@ -44,6 +53,9 @@ export default defineComponent({
 }
 .content::-webkit-scrollbar {
   display: none;
+}
+.start {
+  height: 0;
 }
 .row {
   display: flex;

@@ -3,21 +3,21 @@
     <slot name="header"/>
     <slot name="content"/>
     <div class="footer">
-      <p class="pages-display">{{ pageInfo }}</p>
+      <p class="pages-display">{{ getPageInfo }}</p>
       <div class="toolbar">
         <div class="rows-count">
-          <p class="rows-count-label">Rows per count:</p>
-          <select class="select-rows-count" @change="$emit('rowsPerPageChange', $event)" :value="rowsPerPage">
+          <p class="rows-count-label">Rows per page:</p>
+          <select class="select-rows-count" @change="$emit('rowsPerPageChange', getSelectValue($event))" :value="rowsPerPage">
             <option v-for="(value, index) in getRowsPerPageList" :key="index">{{value}}</option>
           </select>
         </div>
         <div class="pages-switcher">
-          <button class="switcher left-switcher" @click="$emit('previousPage')"/>
-          <select class="select-page">
-            <option>1/27</option>
-            <option>2/27</option>
+          <button class="switcher left-switcher" :disabled="isThisFirstPage" @click="$emit('pageChange', currentPage - 1)"/>
+          <select class="select-page" ref="selector" :disabled="isThisFirstPage && isThisLastPage">
+            <option v-for="number in totalPages" :key="number" :value="`${number}`" hidden>{{`${number}/${totalPages}`}}</option>
+            <option v-for="number in totalPages" :key="number">{{`${number}`}}</option>
           </select>
-          <button class="switcher right-switcher" @click="$emit('nextPage')"/>
+          <button class="switcher right-switcher" :disabled="isThisLastPage" @click="$emit('pageChange', currentPage + 1)"/>
         </div>
       </div>
     </div>
@@ -25,25 +25,62 @@
 </template>
 
 <script lang="ts">
-import { computed, ComputedRef, defineComponent } from 'vue'
+import { computed, ComputedRef, defineComponent, onMounted, ref, watch } from 'vue'
 import { RowsPerPage } from '@/store/state'
 
 export default defineComponent({
   name: 'TableComponent',
   props: {
-    rowsPerPage: { required: true, type: Number },
-    pageInfo: { required: true, type: String }
+    rowsPerPage: { required: true, type: Number, default: () => RowsPerPage.few },
+    totalRows: { required: true, type: Number, default: () => 0 },
+    currentPage: { required: true, type: Number, default: () => 1 }
   },
-  setup () {
+  setup (props, { emit }) {
     const getRowsPerPageList: ComputedRef<number[]> = computed(() => {
       let array = Object.entries(RowsPerPage)
       // First part of array contains duplicates
       array = array.splice(array.length / 2, array.length)
       // There is necessity to get only enum values which are numbers
-      return array.map(a => a[1] as number)
+      return array.map(el => el[1] as number)
     })
 
-    return { getRowsPerPageList }
+    const getSelectValue = (event: Event) => +(event.target as HTMLSelectElement).value
+
+    const totalPages = computed(() => {
+      const value = Math.ceil(props.totalRows / props.rowsPerPage)
+      // Table heeds to has at less one page
+      return value < 1 ? 1 : value
+    })
+
+    const isThisFirstPage = computed(() => props.currentPage === 1)
+    const isThisLastPage = computed(() => props.currentPage === totalPages.value)
+
+    const getPageInfo = computed((totalRows: number = props.totalRows, currentPage: number = props.currentPage, rowsPerPage: number = props.rowsPerPage): string => {
+      if (totalRows === 0) return ''
+      let lastPageRows: number = totalRows % rowsPerPage
+      if (lastPageRows === 0) lastPageRows = rowsPerPage
+
+      const lastRowOnCurrentPage: number = isThisLastPage.value ? totalRows : currentPage * rowsPerPage
+      const firstRowOnCurrentPage: number = lastRowOnCurrentPage - (isThisLastPage.value ? lastPageRows : rowsPerPage) + 1
+      return `${firstRowOnCurrentPage}-${lastRowOnCurrentPage} of ${totalRows}`
+    })
+
+    const selector = ref<HTMLSelectElement | null>(null)
+    onMounted(() => {
+      if (selector.value === null) return
+      selector.value.value = `${props.currentPage}`
+      selector.value.addEventListener('change', (e: Event) => {
+        if (selector.value === null) return
+        selector.value.value = `${(e.target as HTMLSelectElement).value}`
+        emit('pageChange', +selector.value)
+      })
+      watch(props, () => {
+        if (selector.value === null) return
+        selector.value.value = selector.value.options[props.currentPage - 1].value
+      })
+    })
+
+    return { getRowsPerPageList, getSelectValue, getPageInfo, totalPages, isThisFirstPage, isThisLastPage, selector }
   }
 })
 </script>

@@ -1,6 +1,6 @@
 <template>
   <select class="select">
-    <option value="" disabled selected>{{placeholder}}</option>
+    <option value="" disabled selected hidden>{{placeholder}}</option>
     <option v-for="(element, index) in data" :key="index">{{element}}</option>
   </select>
 </template>

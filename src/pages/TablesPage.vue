@@ -16,7 +16,7 @@
       <span class="return-button-text">Return to technologies</span>
     </button>
   </div>
-  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" :page-info="technologiesCurrentPageInfo" @rowsPerPageChange="changeRowsPerTechnologiesPage" @nextPage="openNextTechnologiesPage" @previousPage="openPreviousTechnologiesPage">
+  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" :total-rows="technologiesTotalRows" :current-page="+currentTechnologiesPage" @rowsPerPageChange="rowsPerTechnologiesPage = $event" @pageChange="currentTechnologiesPage = $event">
     <template v-slot:header>
       <TableHeaderComponent :columns-setup="technologiesColumnsSetup" @sort="sortTechnologies"/>
     </template>
@@ -24,7 +24,7 @@
       <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologiesOnPage" :clickable="true" @rowClick="clickOnTechnologyRow"/>
     </template>
   </TableComponent>
-  <TableComponent class="table-section" v-else :rows-per-page="rowsPerProductsPage" :page-info="productsCurrentPageInfo" @rowsPerPageChange="changeRowsPerProductsPage" @nextPage="openNextProductsPage" @previousPage="openPreviousProductsPage">
+  <TableComponent class="table-section" v-else :rows-per-page="rowsPerProductsPage" :total-rows="productsTotalRows" :current-page="+currentProductsPage" @rowsPerPageChange="rowsPerProductsPage = $event" @pageChange="currentProductsPage = $event">
     <template v-slot:header>
       <TableHeaderComponent :columns-setup="productsColumnsSetup" @sort="sortProducts"/>
     </template>
@@ -101,14 +101,9 @@ export default defineComponent({
         isTechnologyChosen.value = true
       } else console.log('Открыть модальное окно')
     }
-    const technologiesCurrentPageInfo = computed(() => store.getters.getTechnologiesCurrentPageInfo)
     const rowsPerTechnologiesPage = useWritableComputedRef(() => store.state.rowsPerTechnologiesPage, MutationTypes.SET_ROWS_PER_TECHNOLOGIES_PAGE)
-    const changeRowsPerTechnologiesPage = (event: Event) => {
-      rowsPerTechnologiesPage.value = +(event.target as HTMLSelectElement).value
-    }
     const currentTechnologiesPage = useWritableComputedRef(() => store.state.currentTechnologiesPage, MutationTypes.SET_CURRENT_TECHNOLOGIES_PAGE)
-    const openPreviousTechnologiesPage = () => { currentTechnologiesPage.value-- }
-    const openNextTechnologiesPage = () => { currentTechnologiesPage.value++ }
+    const technologiesTotalRows = computed(() => store.getters.getCountOfTechnologies)
     const sortTechnologies = (event: SortEvent) => {
       console.log(event)
     }
@@ -118,14 +113,9 @@ export default defineComponent({
     const productsColumnsSetup: ColumnSetup[] = [
       { title: 'Product title', property: 'title', sortAtoZ: true }
     ]
-    const productsCurrentPageInfo = computed(() => store.getters.getProductsCurrentPageInfo)
     const rowsPerProductsPage = useWritableComputedRef(() => store.state.rowsPerProductsPage, MutationTypes.SET_ROWS_PER_PRODUCTS_PAGE)
-    const changeRowsPerProductsPage = (event: Event) => {
-      rowsPerProductsPage.value = +(event.target as HTMLSelectElement).value
-    }
     const currentProductsPage = useWritableComputedRef(() => store.state.currentProductsPage, MutationTypes.SET_CURRENT_PRODUCTS_PAGE)
-    const openPreviousProductsPage = () => { currentProductsPage.value-- }
-    const openNextProductsPage = () => { currentProductsPage.value++ }
+    const productsTotalRows = computed(() => store.getters.getCountOfProducts)
     const sortProducts = (event: SortEvent) => {
       console.log(event)
     }
@@ -145,19 +135,15 @@ export default defineComponent({
       technologiesColumnsSetup,
       sortTechnologies,
       technologiesOnPage,
-      technologiesCurrentPageInfo,
       clickOnTechnologyRow,
       rowsPerTechnologiesPage,
-      changeRowsPerTechnologiesPage,
-      openPreviousTechnologiesPage,
-      openNextTechnologiesPage,
+      currentTechnologiesPage,
+      technologiesTotalRows,
       productsOnPage,
       productsColumnsSetup,
-      productsCurrentPageInfo,
       rowsPerProductsPage,
-      changeRowsPerProductsPage,
-      openPreviousProductsPage,
-      openNextProductsPage,
+      currentProductsPage,
+      productsTotalRows,
       sortProducts,
       test: () => { console.log('test') }
     }

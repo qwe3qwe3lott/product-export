@@ -53,6 +53,14 @@ export const actions: ActionTree<State, State> & Actions = {
         indexValue: 13.233,
         products: []
       }
-    ])
+    ].concat(Array(100).fill({
+      id: 1,
+      title: 'Chemical reaction',
+      indexValue: 23.233,
+      products: [
+        { id: 1, title: 'Сера' },
+        { id: 2, title: 'Водород' }
+      ]
+    })))
   }
 }
