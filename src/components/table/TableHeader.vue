@@ -2,8 +2,8 @@
   <div class="header">
     <button v-for="(setup, index) in columnsSetup" :key="index" :style="getColumnWidth(setup)" class="title" @click="sort(setup)">
       <span class="title-text">{{setup.title}}</span>
-      <img alt="sort mark" src="@/assets/svg/not-sorted.svg" v-if="setup.sortAtoZ === undefined">
-      <img alt="sort arrow" src="@/assets/svg/sorted.svg" v-else :style="getSortInverse(setup.sortAtoZ)">
+      <img alt="sort mark" src="@/assets/svg/not-sorted.svg" v-if="setup.property !== sortSetup.property">
+      <img alt="sort arrow" src="@/assets/svg/sorted.svg" v-else :style="getSortInverse(sortSetup.sortAtoZ)">
     </button>
   </div>
 </template>
@@ -11,12 +11,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { ColumnSetup, ColumnWidthMetrics } from '@/types/ColumnSetup'
-import { SortEvent } from '@/types/events/SortEvent'
+import { SortSetup } from '@/types/SortSetup'
 
 export default defineComponent({
   name: 'TableHeaderComponent',
   props: {
-    columnsSetup: { required: true, type: Array as PropType<ColumnSetup[]> }
+    columnsSetup: { required: true, type: Array as PropType<ColumnSetup[]> },
+    sortSetup: { required: true, type: Object as PropType<SortSetup<object>> }
   },
   emits: ['sort'],
   setup (props, { emit }) {
@@ -24,9 +25,10 @@ export default defineComponent({
     const getSortInverse = (sortAtoZ: boolean) => sortAtoZ ? { transform: 'rotate(180deg)' } : {}
 
     const sort = (setup: ColumnSetup) => {
-      const title = setup.title
-      const sortAtoZ = setup.sortAtoZ === false
-      emit('sort', { title, sortAtoZ } as SortEvent)
+      const key = setup.property
+      // if table already sorted throw chosen column change sort order, else sort from Z to A
+      const sortAtoZ = setup.property === props.sortSetup.property ? !props.sortSetup.sortAtoZ : false
+      emit('sort', { key, sortAtoZ })
     }
     return { getColumnWidth, getSortInverse, sort }
   }

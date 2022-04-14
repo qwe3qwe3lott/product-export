@@ -1,5 +1,5 @@
 <template>
-  <ul class="content">
+  <ul class="content" @scroll="onScroll">
     <li class="start" ref="start"/>
     <li v-for="(element, index) in data" :key="index" class="row" :class="clickable ? 'clickable-row' : ''" @click="clickRow(element)">
       <span v-for="(setup, i) in columnsSetup" :key="i" :style="getColumnWidth(setup)" class="row-value" :class="markValue(element[setup.property])">
@@ -30,6 +30,8 @@ export default defineComponent({
       if (props.clickable) emit('rowClick', { element } as RowClickEvent)
     }
 
+    const onScroll = (event: unknown) => console.log(event)
+
     const start = ref<HTMLUListElement | null>(null)
     onMounted(() => {
       watch(props, () => {
@@ -38,7 +40,7 @@ export default defineComponent({
       })
     })
 
-    return { getColumnWidth, getColumnValue, markValue, clickRow, start }
+    return { getColumnWidth, getColumnValue, markValue, clickRow, start, onScroll }
   }
 })
 </script>
@@ -48,11 +50,17 @@ export default defineComponent({
   border-bottom: var(--primary-color) 1px solid;
   border-top: var(--primary-color) 1px solid;
   padding: 0.25em 0;
-  height: 20em;
-  overflow-y: scroll;
+  min-height: 15em;
+  max-height: 50vh;
+  width: 100%;
+  overflow-y: auto;
 }
 .content::-webkit-scrollbar {
-  display: none;
+  width: 0.2em;
+}
+.content::-webkit-scrollbar-thumb {
+  background-color: var(--secondary-color);
+  border-radius: 0.2em;
 }
 .start {
   height: 0;
@@ -61,7 +69,9 @@ export default defineComponent({
   display: flex;
   align-items: center;
   width: 100%;
-  height: 2em;
+  min-height: 2em;
+  line-height: 1;
+  padding: 0.25em 0;
 }
 .clickable-row:hover {
   cursor: pointer;

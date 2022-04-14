@@ -37,13 +37,14 @@ export default defineComponent({
 
 <style scoped>
 .header {
-  padding: 0 2.5em;
+  padding: 0.5em 2.5em;
   background-color: var(--primary-color);
   color: var(--primary-text-color);
-  height: 3.5em;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5em;
 }
 .logo {
   display: flex;
@@ -63,7 +64,7 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   gap: 1.5em;
-  padding: 1em 2.5em 0.5em 0;
+  padding: 0 2.5em 0 0;
 }
 .nav-button {
   display: flex;

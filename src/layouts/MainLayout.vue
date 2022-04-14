@@ -21,6 +21,12 @@ export default defineComponent({
   background: var(--main-background-color);
   border-radius: 1.5em;
   overflow: hidden;
-  min-height: 20em;
+}
+@media (max-width: 1000px) {
+  .window-layout {
+    border-radius: 0;
+    max-width: unset;
+    min-height: 100vh;
+  }
 }
 </style>

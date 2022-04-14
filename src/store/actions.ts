@@ -21,13 +21,13 @@ export interface Actions {
 }
 
 export const actions: ActionTree<State, State> & Actions = {
-  async [ActionTypes.LOAD_YEARS_LIST] ({ commit }: AugmentedActionContext) {
+  async [ActionTypes.LOAD_YEARS_LIST] ({ commit }) {
     commit(MutationTypes.SET_YEARS_LIST, await apiService.getYearsList())
   },
-  async [ActionTypes.LOAD_COUNTRIES_LIST] ({ commit }: AugmentedActionContext) {
+  async [ActionTypes.LOAD_COUNTRIES_LIST] ({ commit }) {
     commit(MutationTypes.SET_COUNTRIES_LIST, await apiService.getCountriesList())
   },
-  async [ActionTypes.LOAD_TECHNOLOGIES_LIST] ({ commit }: AugmentedActionContext) {
+  async [ActionTypes.LOAD_TECHNOLOGIES_LIST] ({ commit }) {
     await delay(500)
     commit(MutationTypes.SET_TECHNOLOGIES_LIST, [
       {
@@ -41,7 +41,7 @@ export const actions: ActionTree<State, State> & Actions = {
       },
       {
         id: 2,
-        title: 'Chemical something',
+        title: 'Chemical something technology to research some chemical reactions',
         indexValue: 23.233,
         products: [
           { id: 1, title: 'Сера' }
@@ -49,7 +49,7 @@ export const actions: ActionTree<State, State> & Actions = {
       },
       {
         id: 3,
-        title: 'Cake baking',
+        title: 'Cake baking technologies to bake some cakes',
         indexValue: 13.233,
         products: []
       }

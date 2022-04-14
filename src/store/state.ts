@@ -1,5 +1,6 @@
 import { Technology } from '@/types/Technology'
 import { Product } from '@/types/Product'
+import { SortSetup } from '@/types/SortSetup'
 
 export enum RowsPerPage {
   few = 25,
@@ -20,10 +21,12 @@ export type State = {
   technologies: Technology[]
   rowsPerTechnologiesPage: RowsPerPage,
   currentTechnologiesPage: number,
+  technologiesSortSetup: SortSetup<Technology>
 
   products: Product[]
   rowsPerProductsPage: RowsPerPage,
   currentProductsPage: number,
+  productsSortSetup: SortSetup<Product>
 }
 
 export const state: State = {
@@ -38,5 +41,7 @@ export const state: State = {
   rowsPerTechnologiesPage: RowsPerPage.few,
   rowsPerProductsPage: RowsPerPage.few,
   currentTechnologiesPage: 1,
-  currentProductsPage: 1
+  currentProductsPage: 1,
+  technologiesSortSetup: { property: 'indexValue', sortAtoZ: false },
+  productsSortSetup: { property: 'title', sortAtoZ: true }
 }

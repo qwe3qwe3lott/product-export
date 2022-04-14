@@ -14,8 +14,8 @@
         <div class="pages-switcher">
           <button class="switcher left-switcher" :disabled="isThisFirstPage" @click="$emit('pageChange', currentPage - 1)"/>
           <select class="select-page" ref="selector" :disabled="isThisFirstPage && isThisLastPage">
-            <option v-for="number in totalPages" :key="number" :value="`${number}`" hidden>{{`${number}/${totalPages}`}}</option>
-            <option v-for="number in totalPages" :key="number">{{`${number}`}}</option>
+            <option v-for="number in totalPages" :key="number" :value="number" hidden>{{`${number}/${totalPages}`}}</option>
+            <option v-for="number in totalPages" :key="number">{{number}}</option>
           </select>
           <button class="switcher right-switcher" :disabled="isThisLastPage" @click="$emit('pageChange', currentPage + 1)"/>
         </div>
@@ -71,8 +71,8 @@ export default defineComponent({
       selector.value.value = `${props.currentPage}`
       selector.value.addEventListener('change', (e: Event) => {
         if (selector.value === null) return
-        selector.value.value = `${(e.target as HTMLSelectElement).value}`
-        emit('pageChange', +selector.value)
+        selector.value.value = (e.target as HTMLSelectElement).value
+        emit('pageChange', +selector.value.value)
       })
       watch(props, () => {
         if (selector.value === null) return
@@ -89,6 +89,8 @@ export default defineComponent({
 .table {
   display: flex;
   flex-direction: column;
+  overflow-x: scroll;
+  min-width: fit-content;
 }
 .footer {
   padding: 0.25em 1.5em 0.25em 1.5em;
@@ -97,7 +99,7 @@ export default defineComponent({
   align-items: center;
 }
 .pages-display {
-  font-size: 0.7em;
+  font-size: 0.9em;
   color: var(--primary-color);
 }
 .toolbar {
@@ -113,11 +115,11 @@ export default defineComponent({
   gap: 0.25em;
 }
 .rows-count-label {
-  font-size: 0.7em;
+  font-size: 0.9em;
   color: var(--primary-color);
 }
 .select-rows-count {
-  font-size: 0.7em;
+  font-size: 0.9em;
   text-align: center;
   min-width: 3em;
   padding-right: 1em;
@@ -136,8 +138,8 @@ export default defineComponent({
 }
 .switcher {
   border-radius: 0.25em;
-  height: 0.75em;
-  width: 0.75em;
+  height: 0.9em;
+  width: 0.9em;
   background-color: var(--primary-color);
   background-image: url('@/assets/svg/dropdown.svg');
   background-repeat: no-repeat;
@@ -152,7 +154,7 @@ export default defineComponent({
 }
 .select-page {
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.9em;
   color: var(--primary-color);
 }
 </style>
