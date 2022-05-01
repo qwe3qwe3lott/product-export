@@ -1,43 +1,45 @@
 <template>
-  <div class="filter-section">
-    <h2 class="title">{{isTechnologyChosen ? chosenTechnology?.title : 'Technologies'}}</h2>
-    <div class="filters">
-      <DropdownUI :placeholder="'Country'" :value="chosenCountry" :data="countries" @change="countryWasChanged"/>
-      <DropdownUI :placeholder="'Year'" :value="chosenYear" :data="years" @change="yearWasChanged"/>
+  <section class="section">
+    <div class="filter-section">
+      <h2 class="title">{{isTechnologyChosen ? chosenTechnology?.title : 'Technologies'}}</h2>
+      <div class="filters">
+        <DropdownUI :placeholder="'Country'" :value="chosenCountry" :data="countries" @change="countryWasChanged"/>
+        <DropdownUI :placeholder="'Year'" :value="chosenYear" :data="years" @change="yearWasChanged"/>
+      </div>
     </div>
-  </div>
-  <div class="alert-section" v-if="!isTechnologyChosen">
-    <p class="alert-text">The “PRODUCTS” column shows how many manufactured export goods related with patented technology</p>
-    <p class="alert-text" v-if="yearAndCountryHaveChosen">There are <span :class="getCountOfTechnologiesWithProducts > 0 ? 'positive-mark' : 'negative-mark'">{{getCountOfTechnologiesWithProducts}}</span> technologies, which are being used to produce manufactured export in <span class="positive-mark">{{ chosenCountry }}</span> in <span class="positive-mark">{{ chosenYear }}</span></p>
-  </div>
-  <div class="alert-section" v-else>
-    <button class="return-button" @click="getBackToTechnologies">
-      <img class="return-button-image" alt="backArrow" src="@/assets/svg/arrow.svg">
-      <span class="return-button-text">Return to technologies</span>
-    </button>
-  </div>
-  <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" :total-rows="technologiesTotalRows" :current-page="+currentTechnologiesPage" @rowsPerPageChange="rowsPerTechnologiesPage = $event" @pageChange="currentTechnologiesPage = $event">
-    <template v-slot:header>
-      <TableHeaderComponent :columns-setup="technologiesColumnsSetup" :sort-setup="technologiesSortSetup" @sort="sortTechnologies"/>
-    </template>
-    <template v-slot:content>
-      <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologiesOnPage" :clickable="true" @rowClick="clickOnTechnologyRow"/>
-    </template>
-  </TableComponent>
-  <TableComponent class="table-section" v-else :rows-per-page="rowsPerProductsPage" :total-rows="productsTotalRows" :current-page="+currentProductsPage" @rowsPerPageChange="rowsPerProductsPage = $event" @pageChange="currentProductsPage = $event">
-    <template v-slot:header>
-      <TableHeaderComponent :columns-setup="productsColumnsSetup" :sort-setup="productsSortSetup" @sort="sortProducts"/>
-    </template>
-    <template v-slot:content>
-      <TableContentComponent :columns-setup="productsColumnsSetup" :data="productsOnPage" :clickable="false"/>
-    </template>
-  </TableComponent>
-  <ModalWindow v-if="showClickOnTechnologyError" @close="showClickOnTechnologyError = false">
-    <template v-slot:content>
-      <p>The considered country does not have manufactured export goods related with patented technologies</p>
-      <button class="button" @click="showClickOnTechnologyError = false">OK</button>
-    </template>
-  </ModalWindow>
+    <div class="alert-section" v-if="!isTechnologyChosen">
+      <p class="alert-text">The “PRODUCTS” column shows how many manufactured export goods related with patented technology</p>
+      <p class="alert-text" v-if="yearAndCountryHaveChosen">There are <span :class="getCountOfTechnologiesWithProducts > 0 ? 'positive-mark' : 'negative-mark'">{{getCountOfTechnologiesWithProducts}}</span> technologies, which are being used to produce manufactured export in <span class="positive-mark">{{ chosenCountry }}</span> in <span class="positive-mark">{{ chosenYear }}</span></p>
+    </div>
+    <div class="alert-section" v-else>
+      <button class="return-button" @click="getBackToTechnologies">
+        <img class="return-button-image" alt="backArrow" src="@/assets/svg/arrow.svg">
+        <span class="return-button-text">Return to technologies</span>
+      </button>
+    </div>
+    <TableComponent class="table-section" v-if="!isTechnologyChosen" :rows-per-page="rowsPerTechnologiesPage" :total-rows="technologiesTotalRows" :current-page="+currentTechnologiesPage" @rowsPerPageChange="rowsPerTechnologiesPage = $event" @pageChange="currentTechnologiesPage = $event">
+      <template v-slot:header>
+        <TableHeaderComponent :columns-setup="technologiesColumnsSetup" :sort-setup="technologiesSortSetup" @sort="sortTechnologies"/>
+      </template>
+      <template v-slot:content>
+        <TableContentComponent :columns-setup="technologiesColumnsSetup" :data="technologiesOnPage" :clickable="true" @rowClick="clickOnTechnologyRow"/>
+      </template>
+    </TableComponent>
+    <TableComponent class="table-section" v-else :rows-per-page="rowsPerProductsPage" :total-rows="productsTotalRows" :current-page="+currentProductsPage" @rowsPerPageChange="rowsPerProductsPage = $event" @pageChange="currentProductsPage = $event">
+      <template v-slot:header>
+        <TableHeaderComponent :columns-setup="productsColumnsSetup" :sort-setup="productsSortSetup" @sort="sortProducts"/>
+      </template>
+      <template v-slot:content>
+        <TableContentComponent :columns-setup="productsColumnsSetup" :data="productsOnPage" :clickable="false"/>
+      </template>
+    </TableComponent>
+    <ModalWindow v-if="showClickOnTechnologyError" @close="showClickOnTechnologyError = false">
+      <template v-slot:content>
+        <p>The considered country does not have manufactured export goods related with patented technologies</p>
+        <button class="button" @click="showClickOnTechnologyError = false">OK</button>
+      </template>
+    </ModalWindow>
+  </section>
 </template>
 
 <script lang="ts">
@@ -171,6 +173,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.section {
+  width: 60em;
+  display: grid;
+  place-items: stretch;
+}
 .filter-section {
   padding: 1.5em 2.5em 0.5em 2.5em;
   display: flex;
@@ -223,6 +230,11 @@ export default defineComponent({
   margin-top: 0.5em;
   padding: 0.2em 1em;
   border-radius: 1em;
+}
+@media (max-width: 1200px) {
+  .section {
+    width: unset;
+  }
 }
 @media (max-width: 1000px) {
   .filter-section {
